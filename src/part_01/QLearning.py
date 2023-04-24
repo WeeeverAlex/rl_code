@@ -31,7 +31,7 @@ class QLearning:
         actions_per_episode = []
         for i in range(1, self.episodes+1):
             (state, _) = self.env.reset()
-            rewards = 0
+            #rewards = 0
             done = False
             actions = 0
 
@@ -41,13 +41,13 @@ class QLearning:
         
                 # Adjust Q value for current state
                 old_value = 0 #pegar o valor na q-table para a combinacao action e state
-                next_max = 0 #np.max(`do maior valor considerando next_state`)
-                new_value = old_value #calcula o novo valor
+                next_max = np.max(self.q_table[next_state]) #pegar o maior valor na q-table para o proximo estado
+                new_value = old_value + self.alpha + (reward + self.gamma * next_max - old_value) #calcula o novo valor
                 self.q_table[state, action] = new_value
                 # atualiza para o novo estado
                 state = next_state
                 actions=actions+1
-                rewards=rewards+reward
+                #rewards=rewards+reward
 
             actions_per_episode.append(actions)
             if i % 100 == 0:
