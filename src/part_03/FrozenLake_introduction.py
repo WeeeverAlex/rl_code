@@ -1,5 +1,5 @@
 import gymnasium as gym
-env = gym.make("FrozenLake-v1", render_mode='ansi', is_slippery=True).env
+env = gym.make("FrozenLake-v1", map_name="8x8", is_slippery=True).env
 
 #
 # is_slippery=False torna o ambiente deterministico
