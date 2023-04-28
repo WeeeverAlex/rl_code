@@ -22,16 +22,19 @@ class QLearning:
         self.episodes = episodes
 
     def select_action(self, state):
-        rv = random.uniform(0, 1)
-        if rv < self.epsilon:
-            return self.env.action_space.sample() # Explore action space
-        return np.argmax(self.q_table[state]) # Exploit learned values
+         rv = random.uniform(0, 1)
+         if rv < self.epsilon:
+             return self.env.action_space.sample() # Explore action space
+         return np.argmax(self.q_table[state]) # Exploit learned values
+    
+    def select_action(self, state):
+        return self.env.action_space.sample() # Explore action space
 
     def train(self, filename, plotFile):
         actions_per_episode = []
         for i in range(1, self.episodes+1):
             (state, _) = self.env.reset()
-            #rewards = 0
+            rewards = 0
             done = False
             actions = 0
 
@@ -40,14 +43,14 @@ class QLearning:
                 next_state, reward, done, truncated, _ = self.env.step(action) 
         
                 # Adjust Q value for current state
-                old_value = 0 #pegar o valor na q-table para a combinacao action e state
-                next_max = np.max(self.q_table[next_state]) #pegar o maior valor na q-table para o proximo estado
-                new_value = old_value + self.alpha + (reward + self.gamma * next_max - old_value) #calcula o novo valor
+                old_value = self.q_table[state, action]
+                next_max = np.max(self.q_table[next_state])
+                new_value = old_value + self.alpha * (reward + self.gamma * next_max - old_value)
                 self.q_table[state, action] = new_value
                 # atualiza para o novo estado
                 state = next_state
                 actions=actions+1
-                #rewards=rewards+reward
+                rewards=rewards+reward
 
             actions_per_episode.append(actions)
             if i % 100 == 0:
