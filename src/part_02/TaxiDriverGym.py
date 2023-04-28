@@ -2,7 +2,7 @@ import random
 from IPython.display import clear_output
 import gymnasium as gym
 import numpy as np
-from QLearning import QLearning
+from QLearning import QLearning 
 from numpy import loadtxt
 
 env = gym.make("Taxi-v3", render_mode='ansi').env
