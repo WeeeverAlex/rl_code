@@ -3,6 +3,7 @@ import random
 from numpy import savetxt
 import sys
 import matplotlib.pyplot as plt
+import pandas as pd
 
 #
 # This class implements the Q-Learning algorithm.
@@ -29,6 +30,7 @@ class Sarsa:
 
     def train(self, filename, plotFile):
         actions_per_episode = []
+        rewards_list = []
         for i in range(1, self.episodes+1):
             (state, _) = self.env.reset()
             rewards = 0
@@ -48,6 +50,17 @@ class Sarsa:
                 actions=actions+1
                 rewards=rewards+reward
 
+                if reward == 1:
+                    rewards = rewards + 1000
+                elif reward == 0 and done == False:
+                    rewards = rewards - 1
+                elif reward == 0 and done == True:
+                    rewards = rewards - 1000
+
+            rewards_list.append(rewards)
+
+            
+
             actions_per_episode.append(actions)
             if i % 100 == 0:
                 sys.stdout.write("Episodes: " + str(i) +'\r')
@@ -55,6 +68,9 @@ class Sarsa:
             
             if self.epsilon > self.epsilon_min:
                 self.epsilon = self.epsilon * self.epsilon_dec
+
+        df_rewards = pd.DataFrame({'rewards': rewards_list})
+        df_rewards.to_csv('data/rewards_sarsa.csv', mode='a', header=False, index=False)
 
         savetxt(filename, self.q_table, delimiter=',')
         if (plotFile is not None): self.plotactions(plotFile, actions_per_episode)

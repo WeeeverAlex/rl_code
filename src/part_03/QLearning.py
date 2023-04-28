@@ -3,6 +3,7 @@ import random
 from numpy import savetxt
 import sys
 import matplotlib.pyplot as plt
+import pandas as pd
 
 #
 # This class implements the Q-Learning algorithm.
@@ -22,16 +23,17 @@ class QLearning:
         self.episodes = episodes
 
     def select_action(self, state):
-         rv = random.uniform(0, 1)
-         if rv < self.epsilon:
-             return self.env.action_space.sample() # Explore action space
-         return np.argmax(self.q_table[state]) # Exploit learned values
+        rv = random.uniform(0, 1)
+        if rv < self.epsilon:
+            return self.env.action_space.sample() # Explore action space
+        return np.argmax(self.q_table[state]) # Exploit learned values
     
     def select_action(self, state):
-        return self.env.action_space.sample() # Explore action space
+        return self.env.action_space.sample()
 
     def train(self, filename, plotFile):
         actions_per_episode = []
+        rewards_list = []
         for i in range(1, self.episodes+1):
             (state, _) = self.env.reset()
             rewards = 0
@@ -42,15 +44,25 @@ class QLearning:
                 action = self.select_action(state)
                 next_state, reward, done, truncated, _ = self.env.step(action) 
         
-                # Adjust Q value for current state
-                old_value = self.q_table[state, action]
-                next_max = np.max(self.q_table[next_state])
-                new_value = old_value + self.alpha * (reward + self.gamma * next_max - old_value)
+                old_value = self.q_table[state, action] #pegar o valor na q-table para a combinacao action e state
+                next_max = np.max(self.q_table[next_state]) #np.max(`do maior valor considerando next_state`)
+                new_value = old_value + self.alpha * (reward + self.gamma*next_max - old_value) #calcula o novo valor
                 self.q_table[state, action] = new_value
                 # atualiza para o novo estado
                 state = next_state
                 actions=actions+1
                 rewards=rewards+reward
+
+                if reward == 1:
+                    rewards = rewards + 1000
+                elif reward == 0 and done == False:
+                    rewards = rewards - 1
+                elif reward == 0 and done == True:
+                    rewards = rewards - 1000
+
+            rewards_list.append(rewards)
+
+            
 
             actions_per_episode.append(actions)
             if i % 100 == 0:
@@ -59,6 +71,9 @@ class QLearning:
             
             if self.epsilon > self.epsilon_min:
                 self.epsilon = self.epsilon * self.epsilon_dec
+
+        df_rewards = pd.DataFrame({'rewards': rewards_list})
+        df_rewards.to_csv('data/rewards_qlearn.csv', mode='a', header=False, index=False)
 
         savetxt(filename, self.q_table, delimiter=',')
         if (plotFile is not None): self.plotactions(plotFile, actions_per_episode)
