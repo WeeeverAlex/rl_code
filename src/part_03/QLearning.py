@@ -27,9 +27,6 @@ class QLearning:
         if rv < self.epsilon:
             return self.env.action_space.sample() # Explore action space
         return np.argmax(self.q_table[state]) # Exploit learned values
-    
-    def select_action(self, state):
-        return self.env.action_space.sample()
 
     def train(self, filename, plotFile):
         actions_per_episode = []
@@ -62,9 +59,9 @@ class QLearning:
 
             rewards_list.append(rewards)
 
-            
-
             actions_per_episode.append(actions)
+
+            
             if i % 100 == 0:
                 sys.stdout.write("Episodes: " + str(i) +'\r')
                 sys.stdout.flush()
